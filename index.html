@@ -56,11 +56,6 @@ body {
 .leg-item { display:flex; align-items:center; gap:5px; font-size:10.5px; color:#4a7860; letter-spacing:0.04em; }
 .leg-dot  { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
 
-/* ── カレンダー構造 ──
-   週ごとに .week で包む (display:grid 7col)
-   GW週だけ position:relative にしてバナーを absolute で重ねる
-   → バナーは細いstrip、日付番号はセルに残る
-*/
 .cal-header {
   display: grid;
   grid-template-columns: repeat(7, minmax(0,1fr));
@@ -92,18 +87,13 @@ body {
 .cell.dimmed      { opacity:0.14; filter:grayscale(0.5); }
 .cell.highlighted { border-color:#5ab888; box-shadow:0 0 0 1.5px #a0dcc0; }
 
-/* ── GWバナー: Googleカレンダー風の細いストリップ ──
-   .week--gw に position:relative
-   バナーは absolute で日付番号の直下に細く貼る
-   left/width はJSで gw-start / gw-end セルから取得
-*/
 .week--gw { position: relative; }
 
 #gw-banner {
   position: absolute;
   background: #5898d0;
   border-radius: 4px;
-  height: 20px;           /* 細いストリップ */
+  height: 20px;
   display: flex;
   align-items: center;
   padding: 0 8px;
@@ -117,7 +107,7 @@ body {
   z-index: 5;
   pointer-events: none;
   transition: opacity 0.22s, filter 0.22s;
-  top: 26px; /* 日付番号の下 */
+  top: 26px;
 }
 
 .dnum { font-family:'Georgia',serif; font-size:13px; color:#4a7860; margin-bottom:2px; line-height:1; }
@@ -131,11 +121,13 @@ body {
 }
 .bl { font-size:8px; opacity:0.68; flex-shrink:0; font-weight:400; }
 
-.m-momoti    { background:#fde0e8; color:#a03050; }
-.m-dori      { background:#d8eafa; color:#1a4e90; }
-.m-tara      { background:#fdf4d0; color:#8a6000; }
-.m-nana      { background:#e2f5d0; color:#2e7010; }
-.m-gw-badge  { background:#5898d0; color:#fff; font-weight:500; }
+.m-momoti   { background:#fde0e8; color:#a03050; }
+.m-dori     { background:#d8eafa; color:#1a4e90; }
+.m-tara     { background:#fdf4d0; color:#8a6000; }
+.m-nana     { background:#e2f5d0; color:#2e7010; }
+.m-marie    { background:#ffecd8; color:#a04800; }
+.m-miku     { background:#e8e0ff; color:#5030a0; }
+.m-gw-badge { background:#5898d0; color:#fff; font-weight:500; }
 
 .tbd {
   background:#ff3070; color:#fff; font-weight:700; font-size:9.5px;
@@ -174,7 +166,20 @@ body {
     <button class="fbtn" data-member="dori"   style="background:#d8eafa;color:#1a4e90;border-color:#a8d4f4">どり</button>
     <button class="fbtn" data-member="tara"   style="background:#fdf4d0;color:#8a6000;border-color:#f4dea0">たら</button>
     <button class="fbtn" data-member="nana"   style="background:#e2f5d0;color:#2e7010;border-color:#b8e898">nana</button>
+    <button class="fbtn" data-member="marie"  style="background:#ffecd8;color:#a04800;border-color:#ffd0a8">marie</button>
+    <button class="fbtn" data-member="miku"   style="background:#e8e0ff;color:#5030a0;border-color:#c8b8f0">みく</button>
   </div>
+</div>
+
+<div class="legend">
+  <div class="leg-item"><div class="leg-dot" style="background:#f8bcd0"></div>ももてぃ</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#a8d4f4"></div>どり</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#f4dea0"></div>たら</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#b8e898"></div>nana</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#ffd0a8"></div>marie</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#c8b8f0"></div>みく</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#5898d0"></div>GW休み</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#ff3070"></div>未定</div>
 </div>
 
 <div class="cal-header">
@@ -196,14 +201,17 @@ body {
     <div class="cell empty"></div>
     <div class="cell empty"></div>
     <div class="cell empty"></div>
+    <!-- 5/1 金 -->
     <div class="cell" data-members="momoti nana">
       <div class="dnum">1</div>
       <div class="badge m-momoti"><span class="bl">昼</span>ももてぃ</div>
       <div class="badge m-nana"><span class="bl">夜</span>nana</div>
     </div>
+    <!-- 5/2 土 -->
     <div class="cell gw-cell" data-members="momoti" id="gw-start">
       <div class="dnum sat">2</div>
       <div class="badge m-momoti"><span class="bl">昼</span>ももてぃ</div>
+      <div class="badge m-gw-badge"><span class="bl">夜</span>GW休み</div>
     </div>
   </div>
 
@@ -213,6 +221,7 @@ body {
     <div class="cell gw-cell" data-members="" id="gw-4"><div class="dnum">4<span class="hmark">祝</span></div></div>
     <div class="cell gw-cell" data-members="" id="gw-5"><div class="dnum">5<span class="hmark">祝</span></div></div>
     <div class="cell gw-cell" data-members="" id="gw-end"><div class="dnum">6<span class="hmark">祝</span></div></div>
+    <!-- 5/7 木 ★2名体制（元コードそのまま） -->
     <div class="cell double" data-members="tara dori nana momoti">
       <div class="dnum">7<span class="star">★2名体制</span></div>
       <div class="section-label">— 昼 —</div>
@@ -222,130 +231,152 @@ body {
       <div class="badge m-nana"><span class="bl">①</span>nana</div>
       <div class="badge m-momoti"><span class="bl">②</span>ももてぃ</div>
     </div>
+    <!-- 5/8 金 -->
     <div class="cell" data-members="momoti dori">
       <div class="dnum">8</div>
       <div class="badge m-momoti"><span class="bl">昼</span>ももてぃ</div>
       <div class="badge m-dori"><span class="bl">夜</span>どり</div>
     </div>
+    <!-- 5/9 土 -->
     <div class="cell" data-members="dori nana">
       <div class="dnum sat">9</div>
       <div class="badge m-dori"><span class="bl">昼</span>どり</div>
       <div class="badge m-nana"><span class="bl">夜</span>nana</div>
     </div>
-    <!-- GWバナー: JSで配置 -->
     <div id="gw-banner">🌿 GW休み（5/2夜〜5/6）</div>
   </div>
 
-  <!-- 第3週 -->
+  <!-- 第3週: 5/10〜5/16 -->
   <div class="week">
+    <!-- 5/10 日 -->
     <div class="cell" data-members="dori momoti">
       <div class="dnum sun">10</div>
       <div class="badge m-dori"><span class="bl">昼</span>どり</div>
       <div class="badge m-momoti"><span class="bl">夜</span>ももてぃ</div>
     </div>
+    <!-- 5/11 月 -->
     <div class="cell" data-members="momoti nana">
       <div class="dnum">11</div>
       <div class="badge m-momoti"><span class="bl">昼</span>ももてぃ</div>
       <div class="badge m-nana"><span class="bl">夜</span>nana</div>
     </div>
-    <div class="cell" data-members="tara dori">
+    <!-- 5/12 火: 昼 たら→marie -->
+    <div class="cell" data-members="marie dori">
       <div class="dnum">12</div>
-      <div class="badge m-tara"><span class="bl">昼</span>たら</div>
+      <div class="badge m-marie"><span class="bl">昼</span>marie</div>
       <div class="badge m-dori"><span class="bl">夜</span>どり</div>
     </div>
-    <div class="cell" data-members="tara nana">
+    <!-- 5/13 水: 昼 たら→みく -->
+    <div class="cell" data-members="miku nana">
       <div class="dnum">13</div>
-      <div class="badge m-tara"><span class="bl">昼</span>たら</div>
+      <div class="badge m-miku"><span class="bl">昼</span>みく</div>
       <div class="badge m-nana"><span class="bl">夜</span>nana</div>
     </div>
+    <!-- 5/14 木 -->
     <div class="cell" data-members="tara dori">
       <div class="dnum">14</div>
       <div class="badge m-tara"><span class="bl">昼</span>たら</div>
       <div class="badge m-dori"><span class="bl">夜</span>どり</div>
     </div>
+    <!-- 5/15 金 -->
     <div class="cell" data-members="momoti nana">
       <div class="dnum">15</div>
       <div class="badge m-momoti"><span class="bl">昼</span>ももてぃ</div>
       <div class="badge m-nana"><span class="bl">夜</span>nana</div>
     </div>
-    <div class="cell" data-members="dori tara">
+    <!-- 5/16 土: 昼 どり→みく, 夜 marie -->
+    <div class="cell" data-members="miku marie">
       <div class="dnum sat">16</div>
-      <div class="badge m-dori"><span class="bl">昼</span>どり</div>
-      <div class="badge m-tara"><span class="bl">夜</span>たら</div>
+      <div class="badge m-miku"><span class="bl">昼</span>みく</div>
+      <div class="badge m-marie"><span class="bl">夜</span>marie</div>
     </div>
   </div>
 
-  <!-- 第4週 -->
+  <!-- 第4週: 5/17〜5/23 -->
   <div class="week">
-    <div class="cell" data-members="nana nana">
+    <!-- 5/17 日 -->
+    <div class="cell" data-members="nana">
       <div class="dnum sun">17</div>
       <div class="badge m-nana"><span class="bl">昼</span>nana</div>
       <div class="badge m-nana"><span class="bl">夜</span>nana</div>
     </div>
-    <div class="cell" data-members="momoti dori">
+    <!-- 5/18 月: 昼 ももてぃ→みく -->
+    <div class="cell" data-members="miku dori">
       <div class="dnum">18</div>
-      <div class="badge m-momoti"><span class="bl">昼</span>ももてぃ</div>
+      <div class="badge m-miku"><span class="bl">昼</span>みく</div>
       <div class="badge m-dori"><span class="bl">夜</span>どり</div>
     </div>
-    <div class="cell" data-members="momoti nana">
+    <!-- 5/19 火: 昼 ももてぃ→marie -->
+    <div class="cell" data-members="marie nana">
       <div class="dnum">19</div>
-      <div class="badge m-momoti"><span class="bl">昼</span>ももてぃ</div>
+      <div class="badge m-marie"><span class="bl">昼</span>marie</div>
       <div class="badge m-nana"><span class="bl">夜</span>nana</div>
     </div>
-    <div class="cell" data-members="tara dori">
+    <!-- 5/20 水: 夜 どり→marie -->
+    <div class="cell" data-members="tara marie">
       <div class="dnum">20</div>
       <div class="badge m-tara"><span class="bl">昼</span>たら</div>
-      <div class="badge m-dori"><span class="bl">夜</span>どり</div>
+      <div class="badge m-marie"><span class="bl">夜</span>marie</div>
     </div>
+    <!-- 5/21 木 -->
     <div class="cell" data-members="tara momoti">
       <div class="dnum">21</div>
       <div class="badge m-tara"><span class="bl">昼</span>たら</div>
       <div class="badge m-momoti"><span class="bl">夜</span>ももてぃ</div>
     </div>
+    <!-- 5/22 金 -->
     <div class="cell" data-members="momoti dori">
       <div class="dnum">22</div>
       <div class="badge m-momoti"><span class="bl">昼</span>ももてぃ</div>
       <div class="badge m-dori"><span class="bl">夜</span>どり</div>
     </div>
-    <div class="cell" data-members="dori nana">
+    <!-- 5/23 土: 昼 どり→みく, 夜 marie -->
+    <div class="cell" data-members="dori marie">
       <div class="dnum sat">23</div>
       <div class="badge m-dori"><span class="bl">昼</span>どり</div>
-      <div class="badge m-nana"><span class="bl">夜</span>nana</div>
+      <div class="badge m-marie"><span class="bl">夜</span>marie</div>
     </div>
   </div>
 
-  <!-- 第5週 -->
+  <!-- 第5週: 5/24〜5/30 -->
   <div class="week">
-    <div class="cell" data-members="nana tara">
+    <!-- 5/24 日: 昼 みく→nana -->
+    <div class="cell" data-members="miku tara">
       <div class="dnum sun">24</div>
-      <div class="badge m-nana"><span class="bl">昼</span>nana</div>
+      <div class="badge m-miku"><span class="bl">昼</span>みく</div>
       <div class="badge m-tara"><span class="bl">夜</span>たら</div>
     </div>
-    <div class="cell" data-members="dori nana">
+    <!-- 5/25 月: 昼 どり→marie -->
+    <div class="cell" data-members="marie nana">
       <div class="dnum">25</div>
-      <div class="badge m-dori"><span class="bl">昼</span>どり</div>
+      <div class="badge m-marie"><span class="bl">昼</span>marie</div>
       <div class="badge m-nana"><span class="bl">夜</span>nana</div>
     </div>
-    <div class="cell" data-members="tara dori">
+    <!-- 5/26 火: 昼 たら→みく -->
+    <div class="cell" data-members="miku dori">
       <div class="dnum">26</div>
-      <div class="badge m-tara"><span class="bl">昼</span>たら</div>
+      <div class="badge m-miku"><span class="bl">昼</span>みく</div>
       <div class="badge m-dori"><span class="bl">夜</span>どり</div>
     </div>
-    <div class="cell" data-members="tara nana">
+    <!-- 5/27 水: 夜 nana→marie -->
+    <div class="cell" data-members="tara marie">
       <div class="dnum">27</div>
       <div class="badge m-tara"><span class="bl">昼</span>たら</div>
-      <div class="badge m-nana"><span class="bl">夜</span>nana</div>
+      <div class="badge m-marie"><span class="bl">夜</span>marie</div>
     </div>
+    <!-- 5/28 木 -->
     <div class="cell" data-members="tara dori">
       <div class="dnum">28</div>
       <div class="badge m-tara"><span class="bl">昼</span>たら</div>
       <div class="badge m-dori"><span class="bl">夜</span>どり</div>
     </div>
-    <div class="cell" data-members="tara nana">
+    <!-- 5/29 金: 昼 たら→みく -->
+    <div class="cell" data-members="miku nana">
       <div class="dnum">29</div>
-      <div class="badge m-tara"><span class="bl">昼</span>たら</div>
+      <div class="badge m-miku"><span class="bl">昼</span>みく</div>
       <div class="badge m-nana"><span class="bl">夜</span>nana</div>
     </div>
+    <!-- 5/30 土 -->
     <div class="cell" data-members="dori nana">
       <div class="dnum sat">30</div>
       <div class="badge m-dori"><span class="bl">昼</span>どり</div>
@@ -355,9 +386,10 @@ body {
 
   <!-- 第6週 -->
   <div class="week">
-    <div class="cell" data-members="tbd tara">
+    <!-- 5/31 日: 昼 未定→みく -->
+    <div class="cell" data-members="miku tara">
       <div class="dnum sun">31</div>
-      <div class="badge tbd"><span class="bl" style="opacity:.85">昼</span>未定</div>
+      <div class="badge m-miku"><span class="bl">昼</span>みく</div>
       <div class="badge m-tara"><span class="bl">夜</span>たら</div>
     </div>
     <div class="cell empty"></div>
@@ -372,32 +404,19 @@ body {
 </div>
 
 <script>
-// バナーをgw-startの右端〜gw-endの右端に細く貼る
-// gw-startは第1週の最後(土)なので、バナーは第2週(week-gw)のgw-3〜gw-endに貼る
 function placeBanner() {
   const weekGw = document.getElementById('week-gw');
   const gw3    = document.getElementById('gw-3');
   const gwEnd  = document.getElementById('gw-end');
   const banner = document.getElementById('gw-banner');
   if (!weekGw || !gw3 || !gwEnd || !banner) return;
-
-  const weekRect   = weekGw.getBoundingClientRect();
-  const startRect  = gw3.getBoundingClientRect();
-  const endRect    = gwEnd.getBoundingClientRect();
-
-  const left  = gw3.offsetLeft;
-  const width = gwEnd.offsetLeft + gwEnd.offsetWidth - gw3.offsetLeft;
-
-  banner.style.left  = left + 'px';
-  banner.style.width = width + 'px';
-  // top: セルのpadding-top(7px) + dnum行高(13px) + gap(3px) ≒ 26px
+  banner.style.left  = gw3.offsetLeft + 'px';
+  banner.style.width = (gwEnd.offsetLeft + gwEnd.offsetWidth - gw3.offsetLeft) + 'px';
   banner.style.top   = '26px';
 }
-
 window.addEventListener('load', placeBanner);
 window.addEventListener('resize', placeBanner);
 
-// フィルター
 let active = 'all';
 document.querySelectorAll('.fbtn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -413,7 +432,6 @@ document.querySelectorAll('.fbtn').forEach(btn => {
     }
 
     const banner  = document.getElementById('gw-banner');
-    const gwStart = document.getElementById('gw-start');
     const gwCells = document.querySelectorAll('.gw-cell');
 
     document.querySelectorAll('#cal .cell:not(.empty)').forEach(cell => {
